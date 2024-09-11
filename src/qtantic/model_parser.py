@@ -1,7 +1,5 @@
 """Parser functions to process models and their components."""
 
-# TODO: Implement more field types.
-# - Literal -> QComboBox: list of values gives the options, the default sets the default
 # TODO: Implement a "Reset to defaults button" that resets all fields to their default values.
 # TODO: Implement additional properties for the fields, e.g., widget selector, using `json_scheme_extra` in `Field`.
 # see https://github.com/pydantic/pydantic/discussions/2419#discussioncomment-8632072
@@ -34,6 +32,8 @@ def get_value_from_widget(widget: QtWidgets.QWidget) -> Any:
         return widget.text()
     elif isinstance(widget, QtWidgets.QCheckBox):
         return widget.isChecked()
+    elif isinstance(widget, QtWidgets.QComboBox):
+        return widget.currentText()
     else:
         raise NotImplementedError(f"Widget type {type(widget)} not implemented.")
 
@@ -68,7 +68,10 @@ def field_parser(
     if (ftp := field["type"]) in ["integer", "number"]:
         widget = _create_number_widget(value, field)
     elif ftp == "string":
-        widget = _create_text_entry_widget(value, field)
+        if "enum" in field.keys():  # Literal
+            widget = _create_combobox_widget(value, field)
+        else:
+            widget = _create_text_entry_widget(value, field)
     elif ftp == "boolean":
         widget = _create_bool_widget(value, field)
     else:
@@ -88,6 +91,25 @@ def _create_bool_widget(value: bool, field: dict) -> QtWidgets.QWidget:
     """
     widget = QtWidgets.QCheckBox()
     widget.setChecked(value)
+
+    if "description" in field:
+        widget.setToolTip(field["description"])
+
+    return widget
+
+def _create_combobox_widget(value: str, field: dict) -> QtWidgets.QWidget:
+    """Create a widget for a combobox field.
+
+    Args:
+        field: Field definition.
+
+    Returns:
+        Widget for the combobox field.
+
+    """
+    widget = QtWidgets.QComboBox()
+    widget.addItems(field["enum"])
+    widget.setCurrentText(value)
 
     if "description" in field:
         widget.setToolTip(field["description"])

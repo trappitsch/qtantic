@@ -1,5 +1,7 @@
 """Tests for the SimpleDialog model and returner."""
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 from qtantic import SimpleDialogModel, simple_dialog
@@ -15,6 +17,7 @@ def test_simple_dialog_model_accept(qtbot):
         value_b: int = Field(default=42, description="Tooltip value B")
         value_c: float = Field(default=3.14, title="Approx. pi", description="Tooltip value C")
         value_d: bool = Field(default=True, description="Tooltip value D")
+        value_e: Literal["A", "B", "C"] = Field(default="B", description="Tooltip value E", title="Select one from DropDown")
 
     model = SimpleDialogModel(title="Test Dialog", entries=Entries())
 
@@ -28,18 +31,22 @@ def test_simple_dialog_model_accept(qtbot):
     assert widget.widgets["value_b"].toolTip() == "Tooltip value B"
     assert widget.widgets["value_c"].toolTip() == "Tooltip value C"
     assert widget.widgets["value_d"].toolTip() == "Tooltip value D"
+    assert widget.widgets["value_e"].toolTip() == "Tooltip value E"
 
 
     widget.widgets["value_a"].setText("BBB")
     widget.widgets["value_b"].setValue(43)
     widget.widgets["value_c"].setValue(3.15)
     widget.widgets["value_d"].setChecked(False)
+    widget.widgets["value_e"].setCurrentIndex(0)
+
     widget.accept()
 
     assert widget.entries.value_a == "BBB"
     assert widget.entries.value_b == 43
     assert widget.entries.value_c == 3.15
     assert widget.entries.value_d is False
+    assert widget.entries.value_e == "A"
 
 
 def test_simple_dialog_model_reject(qtbot):
