@@ -27,7 +27,8 @@ dev-dependencies = [
 ]
 
 [tool.rye.scripts]
-test_cov = "rye run pytest --cov --cov-report xml"
+test_cov = "rye run pytest --cov=src/qtantic tests/ --cov-report xml"
+test_cov_html = "rye run pytest --cov=src/qtantic tests/  --cov-report html"
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -37,5 +38,5 @@ packages = ["src/qtantic"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "--cov=qtantic -v"
+addopts = "--cov=src/qtantic tests/"
 testpaths = "tests"
