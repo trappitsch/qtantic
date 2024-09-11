@@ -12,10 +12,10 @@
 # - QTextEdit for string fields
 # - QSlider for integer (and float???) fields
 
-
 from typing import Any, Tuple, Union
 
 from qtpy import QtWidgets
+
 
 def get_value_from_widget(widget: QtWidgets.QWidget) -> Any:
     """Get the value from a widget.

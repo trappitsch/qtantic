@@ -1,0 +1,47 @@
+name: testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  MAIN_PYTHON_VERSION: "3.12"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    env:
+      DISPLAY: ':99.0'
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Install Qt dependencies
+      uses: tlambert03/setup-qt-libs@v1
+    - name: Setup display
+      run: |
+        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
+    - name: Install the latest version of rye
+      uses: eifinger/setup-rye@v4
+    - name: Sync Rye
+      run: |
+        rye pin ${{ matrix.python-version }}
+        rye sync
+    - name: Run Tests for python interface
+      run: rye test
+    - name: Run Lint on one python
+      if: ${{ matrix.python-version == env.MAIN_PYTHON_VERSION }}
+      run: rye lint
+    - name: Run Pytest with coverage
+      if: ${{ matrix.python-version == env.MAIN_PYTHON_VERSION }}
+      run: |
+        rye run test_cov
+    - name: Upload coverage reports to Codecov
+      if: ${{ matrix.python-version == env.MAIN_PYTHON_VERSION && github.repository_owner == 'trappitsch' }}
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

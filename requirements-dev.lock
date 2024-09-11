@@ -12,6 +12,8 @@
 -e file:.
 annotated-types==0.7.0
     # via pydantic
+coverage==7.6.1
+    # via pytest-cov
 iniconfig==2.0.0
     # via pytest
 packaging==24.1
@@ -19,18 +21,28 @@ packaging==24.1
     # via qtpy
 pluggy==1.5.0
     # via pytest
+    # via pytest-qt
 pydantic==2.9.1
     # via qtantic
 pydantic-core==2.23.3
     # via pydantic
-pyqt6==6.7.1
-pyqt6-qt6==6.7.2
-    # via pyqt6
-pyqt6-sip==13.8.0
-    # via pyqt6
+pyside6==6.7.2
+pyside6-addons==6.7.2
+    # via pyside6
+pyside6-essentials==6.7.2
+    # via pyside6
+    # via pyside6-addons
 pytest==8.3.2
+    # via pytest-cov
+    # via pytest-qt
+pytest-cov==5.0.0
+pytest-qt==4.4.0
 qtpy==2.4.1
     # via qtantic
+shiboken6==6.7.2
+    # via pyside6
+    # via pyside6-addons
+    # via pyside6-essentials
 typing-extensions==4.12.2
     # via pydantic
     # via pydantic-core

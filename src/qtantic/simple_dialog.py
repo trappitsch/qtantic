@@ -10,6 +10,8 @@ The dialog box will return a `pydantic` model filled with the new values.
 If `Cancel` was pressed, None will be returned.
 """
 
+from typing import Union
+
 from pydantic import BaseModel
 from qtpy import QtWidgets
 
@@ -19,7 +21,7 @@ import qtantic.model_parser as mp
 class SimpleDialogModel(BaseModel):
     """Model that needs to be provided for the SimpleDialog class."""
 
-    title: str | None = None
+    title: Union[str, None] = None
     entries: BaseModel
 
 
