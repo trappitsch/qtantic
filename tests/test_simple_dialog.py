@@ -14,6 +14,7 @@ def test_simple_dialog_model_accept(qtbot):
         )
         value_b: int = Field(default=42, description="Tooltip value B")
         value_c: float = Field(default=3.14, title="Approx. pi", description="Tooltip value C")
+        value_d: bool = Field(default=True, description="Tooltip value D")
 
     model = SimpleDialogModel(title="Test Dialog", entries=Entries())
 
@@ -26,15 +27,19 @@ def test_simple_dialog_model_accept(qtbot):
     assert widget.widgets["value_a"].toolTip() == "Tooltip value A"
     assert widget.widgets["value_b"].toolTip() == "Tooltip value B"
     assert widget.widgets["value_c"].toolTip() == "Tooltip value C"
+    assert widget.widgets["value_d"].toolTip() == "Tooltip value D"
+
 
     widget.widgets["value_a"].setText("BBB")
     widget.widgets["value_b"].setValue(43)
     widget.widgets["value_c"].setValue(3.15)
+    widget.widgets["value_d"].setChecked(False)
     widget.accept()
 
     assert widget.entries.value_a == "BBB"
     assert widget.entries.value_b == 43
     assert widget.entries.value_c == 3.15
+    assert widget.entries.value_d is False
 
 
 def test_simple_dialog_model_reject(qtbot):
