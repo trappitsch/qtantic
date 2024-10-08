@@ -3,6 +3,7 @@ site_name: qtantic
 theme:
   name: material
   features:
+    - content.code.annotate
     - content.code.copy
     - content.code.select
     - navigation.footer
@@ -39,7 +40,16 @@ markdown_extensions:
 
 plugins:
   - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+
 
 nav:
   - Home: index.md
+  - Simple Dialog: simple_dialog.md
   - Changelog: changelog.md

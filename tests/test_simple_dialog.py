@@ -15,9 +15,13 @@ def test_simple_dialog_model_accept(qtbot):
             default="A", title="This is value A", description="Tooltip value A"
         )
         value_b: int = Field(default=42, description="Tooltip value B")
-        value_c: float = Field(default=3.14, title="Approx. pi", description="Tooltip value C")
+        value_c: float = Field(
+            default=3.14, title="Approx. pi", description="Tooltip value C"
+        )
         value_d: bool = Field(default=True, description="Tooltip value D")
-        value_e: Literal["A", "B", "C"] = Field(default="B", description="Tooltip value E", title="Select one from DropDown")
+        value_e: Literal["A", "B", "C"] = Field(
+            default="B", description="Tooltip value E", title="Select one from DropDown"
+        )
 
     model = SimpleDialogModel(title="Test Dialog", entries=Entries())
 
@@ -32,7 +36,6 @@ def test_simple_dialog_model_accept(qtbot):
     assert widget.widgets["value_c"].toolTip() == "Tooltip value C"
     assert widget.widgets["value_d"].toolTip() == "Tooltip value D"
     assert widget.widgets["value_e"].toolTip() == "Tooltip value E"
-
 
     widget.widgets["value_a"].setText("BBB")
     widget.widgets["value_b"].setValue(43)
@@ -73,6 +76,37 @@ def test_simple_dialog_model_reject(qtbot):
     widget.reject()
 
     assert widget.entries == model.entries
+
+
+def test_simple_dialog_model_restore_defaults(qtbot):
+    """Restore defaults for values that have them."""
+
+    class Entries(BaseModel):
+        value_a: str = Field(
+            default="A", title="This is value A", description="Tooltip value A"
+        )
+        value_b: int = Field(default=42, description="Tooltip value B")
+        value_c: float = Field(
+            default=3.14, title="Approx. pi", description="Tooltip value C"
+        )
+        value_d: str = Field(title="This is value D", description="Tooltip value D")
+
+    model = SimpleDialogModel(title="Test", entries=Entries(value_d="Initial D"))
+
+    widget = simple_dialog(model)
+    qtbot.addWidget(widget)
+
+    widget.widgets["value_a"].setText("BBB")
+    widget.widgets["value_b"].setValue(43)
+    widget.widgets["value_c"].setValue(3.15)
+    widget.widgets["value_d"].setText("Edited D")
+
+    widget.restore_defaults()
+
+    assert widget.widgets["value_a"].text() == "A"
+    assert widget.widgets["value_b"].value() == 42
+    assert widget.widgets["value_c"].value() == 3.14
+    assert widget.widgets["value_d"].text() == "Edited D"
 
 
 def test_simple_dialog_widget_constraints(qtbot):
