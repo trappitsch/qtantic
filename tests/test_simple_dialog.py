@@ -121,7 +121,11 @@ def test_simple_dialog_model_restore_defaults(qtbot):
         value_c: float = Field(
             default=3.14, title="Approx. pi", description="Tooltip value C"
         )
-        value_d: str = Field(title="This is value D", description="Tooltip value D", json_scheme_extra={"widget": "QTextEdit"})
+        value_d: str = Field(
+            title="This is value D",
+            description="Tooltip value D",
+            json_scheme_extra={"widget": "QTextEdit"},
+        )
         value_e: Literal["A", "B", "C"] = Field("A")
         value_f: date = Field(date(2020, 1, 1))
         value_g: time = Field(time(9, 0))
