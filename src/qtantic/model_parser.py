@@ -1,14 +1,10 @@
 """Parser functions to process models and their components."""
 
-# TODO: 
-# - Time field with QTimeEdit
-# - Date field with QDateEdit
-# - DateTime field with QDateTimeEdit
-
+from datetime import date, datetime, time
 from typing import Any, Tuple, Union
 
 from pydantic_core import PydanticUndefined
-from qtpy import QtWidgets
+from qtpy import QtCore, QtWidgets
 
 
 def get_value_from_widget(widget: QtWidgets.QWidget) -> Any:
@@ -33,6 +29,12 @@ def get_value_from_widget(widget: QtWidgets.QWidget) -> Any:
         return widget.isChecked()
     elif isinstance(widget, QtWidgets.QComboBox):
         return widget.currentText()
+    elif isinstance(widget, QtWidgets.QTimeEdit):
+        return widget.time().toPython()
+    elif isinstance(widget, QtWidgets.QDateEdit):
+        return widget.date().toPython()
+    elif isinstance(widget, QtWidgets.QDateTimeEdit):
+        return widget.dateTime().toPython()
     else:
         raise NotImplementedError(f"Widget type {type(widget)} not implemented.")
 
@@ -73,6 +75,14 @@ def field_parser(
     elif ftp == "string":
         if "enum" in field.keys():  # Literal
             widget = _create_combobox_widget(value, field)
+        elif "format" in field.keys():  # Date, Time, DateTime
+            fmt = field["format"]
+            if fmt == "time":
+                widget = _create_time_widget(value, field)
+            elif fmt == "date":
+                widget = _create_date_widget(value, field)
+            elif fmt == "date-time":
+                widget = _create_datetime_widget(value, field)
         elif user_widget == "QTextEdit":
             widget = _create_text_multiline_widget(value, field)
         else:
@@ -104,12 +114,20 @@ def set_widget_value(widget: QtWidgets.QWidget, value: Any) -> None:
         widget, QtWidgets.QDoubleSpinBox
     ):
         widget.setValue(value)
-    elif isinstance(widget, QtWidgets.QLineEdit) or isinstance(widget, QtWidgets.QTextEdit):
+    elif isinstance(widget, QtWidgets.QLineEdit) or isinstance(
+        widget, QtWidgets.QTextEdit
+    ):
         widget.setText(value)
     elif isinstance(widget, QtWidgets.QCheckBox):
         widget.setChecked(value)
     elif isinstance(widget, QtWidgets.QComboBox):
         widget.setCurrentText(value)
+    elif isinstance(widget, QtWidgets.QTimeEdit):
+        widget.setTime(value)
+    elif isinstance(widget, QtWidgets.QDateEdit):
+        widget.setDate(value)
+    elif isinstance(widget, QtWidgets.QDateTimeEdit):
+        widget.setDateTime(value)
     else:
         raise NotImplementedError(f"Widget type {type(widget)} not implemented.")
 
@@ -146,6 +164,64 @@ def _create_combobox_widget(value: str, field: dict) -> QtWidgets.QWidget:
     widget = QtWidgets.QComboBox()
     widget.addItems(field["enum"])
     widget.setCurrentText(value)
+
+    if "description" in field:
+        widget.setToolTip(field["description"])
+
+    return widget
+
+
+def _create_date_widget(value: date, field: dict) -> QtWidgets.QWidget:
+    """Create a widget for a date field.
+
+    Args:
+        field: Field definition.
+
+    Returns:
+        Widget for the date field.
+
+    """
+    display_format = field.get("json_scheme_extra", {}).get("display", "yyyy-MM-dd")
+    widget = QtWidgets.QDateEdit(value, displayFormat=display_format)
+
+    minimum = field.get("minimum", field.get("exclusiveMinimum", None))
+    maximum = field.get("maximum", field.get("exclusiveMaximum", None))
+    if minimum:
+        widget.setMinimumDate(QtCore.QDate.fromString(minimum, QtCore.Qt.ISODate))
+    if maximum:
+        widget.setMaximumDate(QtCore.QDate.fromString(maximum, QtCore.Qt.ISODate))
+
+    if "description" in field:
+        widget.setToolTip(field["description"])
+
+    return widget
+
+
+def _create_datetime_widget(value: datetime, field: dict) -> QtWidgets.QWidget:
+    """Create a widget for a datetime field.
+
+    Args:
+        field: Field definition.
+
+    Returns:
+        Widget for the datetime field.
+
+    """
+    display_format = field.get("json_scheme_extra", {}).get(
+        "display", "yyyy-MM-dd HH:mm:ss"
+    )
+    widget = QtWidgets.QDateTimeEdit(value, displayFormat=display_format)
+
+    minimum = field.get("minimum", field.get("exclusiveMinimum", None))
+    maximum = field.get("maximum", field.get("exclusiveMaximum", None))
+    if minimum:
+        widget.setMinimumDateTime(
+            QtCore.QDateTime.fromString(minimum, QtCore.Qt.ISODate)
+        )
+    if maximum:
+        widget.setMaximumDateTime(
+            QtCore.QDateTime.fromString(maximum, QtCore.Qt.ISODate)
+        )
 
     if "description" in field:
         widget.setToolTip(field["description"])
@@ -203,6 +279,8 @@ def _create_text_multiline_widget(value: str, field: dict) -> QtWidgets.QWidget:
         widget.setToolTip(field["description"])
 
     return widget
+
+
 def _create_text_line_widget(value: str, field: dict) -> QtWidgets.QWidget:
     """Create a widget for a text entry field.
 
@@ -216,6 +294,32 @@ def _create_text_line_widget(value: str, field: dict) -> QtWidgets.QWidget:
     widget = QtWidgets.QLineEdit()
 
     widget.setText(value)
+
+    if "description" in field:
+        widget.setToolTip(field["description"])
+
+    return widget
+
+
+def _create_time_widget(value: time, field: dict) -> QtWidgets.QWidget:
+    """Create a widget for a time field.
+
+    Args:
+        field: Field definition.
+
+    Returns:
+        Widget for the time field.
+
+    """
+    display_format = field.get("json_scheme_extra", {}).get("display", "HH:mm:ss")
+    widget = QtWidgets.QTimeEdit(value, displayFormat=display_format)
+
+    minimum = field.get("minimum", field.get("exclusiveMinimum", None))
+    maximum = field.get("maximum", field.get("exclusiveMaximum", None))
+    if minimum:
+        widget.setMinimumTime(QtCore.QTime.fromString(minimum, QtCore.Qt.ISODate))
+    if maximum:
+        widget.setMaximumTime(QtCore.QTime.fromString(maximum, QtCore.Qt.ISODate))
 
     if "description" in field:
         widget.setToolTip(field["description"])

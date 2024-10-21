@@ -119,6 +119,7 @@ class MyModel(BaseModel):
 
 This will create a single checkbox field with a default value of `False`.
 
+
 ## Enumerations / Combo box
 
 These are associated with the `Literal` type.
@@ -138,4 +139,38 @@ class MyModel(BaseModel):
 
 This will create a single combo box field with a default value of `B`.
 The user can select one of the three options: `A`, `B`, or `C`.
+
+
+## Dates, Times, and DateTimes
+
+These values are all associated with the `datetime.date`, `datetime.time`, and `datetime.datetime` types.
+By default, these are rendered as `QDateEdit`, `QTimeEdit`, and `QDateTimeEdit` widgets, respectively
+and are displayed as:
+
+- Date: `yyyy-MM-dd`, e.g., `2023-12-31`
+- Time: `HH:mm:ss`, e.g., `23:59:59`
+- DateTime: `yyyy-MM-dd HH:mm:ss`, e.g., `2023-12-31 23:59:59`
+
+The following options are available:
+
+- `minimum`: The minimum value that can be set (inclusive). Must be of the same time as the field.
+- `maximum`: The maximum value that can be set (inclusive). Must be of the same time as the field.
+
+Extra option to select the format:
+
+You can select the format by setting the `json_scheme_extra={"display": "format_string"}`, 
+where `format_string` is a string that is supported by the selected widget.
+
+**Example:**
+
+```python
+from datetime import datetime
+
+from pydantic import BaseModel
+
+class MyModel(BaseModel):
+    datetime: datetime = Field(datetime.now(), json_scheme_extra={"display": "yyyy-MM-dd HH:mm"})
+```
+
+In this example, the user gets a `datetime` widget that does not display the seconds.
 
