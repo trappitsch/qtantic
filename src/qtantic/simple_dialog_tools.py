@@ -1,4 +1,4 @@
-"""This class will allow us to create a simple dialog box.
+"""Tools to create a simple dialog based on a pydantic model.
 
 The idea of this dialog is that it allows simple creation of a query
 dialog, i.e., to ask a user to provide some input variables in the form
@@ -12,16 +12,39 @@ If `Cancel` was pressed, None will be returned.
 
 from typing import Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from qtpy import QtWidgets
 
 import qtantic.model_parser as mp
 
 
 class SimpleDialogModel(BaseModel):
-    """Model that needs to be provided for the SimpleDialog class."""
+    """Pydantic model to create a simple dialog.
+
+    Import this with `from qtantic import SimpleDialogModel`.
+
+    Attributes:
+        title: Title of the dialog box. Defaults to None. If None, the name of the
+            entries model will be used as the dialog title.
+        restore_defaults: Provide a button to reset all fields to their default values.
+            Defaults to True.
+        entries: Pydantic `BaseModel` that will be used to create the dialog.
+
+    Examples:
+        >>> from pydantic import BaseModel
+        >>> from qtantic import SimpleDialogModel
+        >>>
+        >>> class MyFields(BaseModel):  # Define entries for model
+        >>>    input_field: str
+        >>>
+        >>> dialog_model = SimpleDialogModel(entries=MyFields)
+    """
 
     title: Union[str, None] = None
+    restore_defaults: bool = Field(
+        default=True,
+        description="Provide a button to reset all fields to their default values.",
+    )
     entries: BaseModel
 
 
@@ -49,7 +72,6 @@ class SimpleDialog(QtWidgets.QDialog):
             parent: Parent widget of the dialog or None.
         """
         super().__init__(parent, *args, **kwargs)
-
         self._model: SimpleDialogModel = model
         self._entries: BaseModel = model.entries
         self._labels: dict = {}
@@ -96,9 +118,20 @@ class SimpleDialog(QtWidgets.QDialog):
         layout.addLayout(edit_layout)
         layout.addStretch()
 
-        buttons = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
-        )
+        if self._model.restore_defaults:
+            buttons = QtWidgets.QDialogButtonBox(
+                QtWidgets.QDialogButtonBox.RestoreDefaults
+                | QtWidgets.QDialogButtonBox.Ok
+                | QtWidgets.QDialogButtonBox.Cancel
+            )
+            buttons.button(QtWidgets.QDialogButtonBox.RestoreDefaults).clicked.connect(
+                self.restore_defaults
+            )
+        else:
+            buttons = QtWidgets.QDialogButtonBox(
+                QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
+            )
+
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
 
@@ -111,13 +144,20 @@ class SimpleDialog(QtWidgets.QDialog):
             setattr(self.entries, key, mp.get_value_from_widget(widget))
         super().accept()
 
+    def restore_defaults(self) -> None:
+        """Reset all fields to their default values."""
+        for key in self.entries.model_fields.keys():
+            default = self.entries.model_fields[key].default
+            widget = self.widgets[key]
+            mp.set_widget_value(widget, default)
+
 
 def simple_dialog(
-    model: SimpleDialogModel, *args, parent=None, **kwargs
+    model: SimpleDialogModel, *args, parent: QtWidgets.QWidget = None, **kwargs
 ) -> SimpleDialog:
     """Get a simple dialog QWidget.
 
-    You can pass further *args and **kwargs that will be passed on to the
+    You can pass further `*args` and `**kwargs` that will be passed on to the
     QDialog widget.
 
     Args:
@@ -126,6 +166,18 @@ def simple_dialog(
 
     Returns:
         A SimpleDialog widget with the provided fields and entries,
-        plus an `Ok` and `Cancel` button to accept / cancel the dialog.
+            plus an `Ok` and `Cancel` and `Restore Defaults` (optional)
+            button to accept / cancel the dialog.
+            This widget subclasses `QtWidgets.QDialog`.
+
+    Examples:
+        >>> from pydantic import BaseModel
+        >>> from qtantic import SimpleDialogModel, simple_dialog
+        >>>
+        >>> class MyFields(BaseModel):  # Define entries for model
+        >>>    input_field: str
+        >>>
+        >>> simple_dialog_model = SimpleDialogModel(entries=MyFields)
+        >>> dialog = simple_dialog(simple_dialog_model)
     """
-    return SimpleDialog(model)
+    return SimpleDialog(model, parent=parent)

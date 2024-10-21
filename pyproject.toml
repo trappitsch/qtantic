@@ -13,6 +13,13 @@ readme = "README.md"
 requires-python = ">= 3.9"
 license = { text = "MIT" }
 
+[project.optional-dependencies]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocstrings[python]>=0.26.1",
+    "mkdocs-material>=9.5.38",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -27,7 +34,8 @@ dev-dependencies = [
 ]
 
 [tool.rye.scripts]
-test_cov = "rye run pytest --cov --cov-report xml"
+test_cov = "rye run pytest --cov=src/qtantic tests/ --cov-report xml"
+test_cov_html = "rye run pytest --cov=src/qtantic tests/  --cov-report html"
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -37,5 +45,5 @@ packages = ["src/qtantic"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "--cov=qtantic -v"
+addopts = "--cov=src/qtantic tests/"
 testpaths = "tests"

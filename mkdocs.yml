@@ -1,0 +1,56 @@
+site_name: qtantic
+
+theme:
+  name: material
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - navigation.footer
+  palette:
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+site_url: https://qtantic.readthedocs.io
+repo_url: https://github.com/trappitsch/qtantic
+site_author: Reto Trappitsch
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: '!!python/name:pymdownx.superfences.fence_code_format'
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+
+
+nav:
+  - Home: index.md
+  - Field & Widgets: fields_widgets.md
+  - Simple Dialog: simple_dialog.md
+  - Changelog: changelog.md
