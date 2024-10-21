@@ -1,7 +1,7 @@
 # Simple Dialog
 
 This tool helps you to create a simple dialog for your application
-based on one simple pydantic model. 
+based on one simple pydantic model.
 An example is shown here:
 
 ![Simple dialog example, light mode](assets/simple_dialog_light.png#only-light)
@@ -16,8 +16,8 @@ This dialog consists of the following features:
 
 ## Example
 
-The following gives the example code to create the dialog shown above. 
-As this is a dialog, 
+The following gives the example code to create the dialog shown above.
+As this is a dialog,
 we create a simple main application around it which has as its main widget
 a button that loads the dialog when clicked.
 Detailed explanations are given in the code annotations: presse the `+` symbol in the code block to see them.
@@ -79,12 +79,12 @@ sys.exit(exit_code)
     The `title` value is used as the label text for each entry. If not given, the field name is used.
     The `description` value is used as the tooltip text for each entry.
     Constraining numeric fields is done with `minimum` and `maximum`. If not provided, widget defaults are used.
-    Note the `validate_assignment=True` argument. 
+    Note the `validate_assignment=True` argument.
     This allows us to automatically check upon accepting new values if these are valid.
     Validation is thus fully integrated using pydantic.
 2. The name entry is a string that defaults to "John Doe" and has a tooltip "Name of the person".
     Strings are automatically rendered as line edit widgets.
-3. The age entry is an integer that defaults to 42 and has a tooltip "Age of the person". 
+3. The age entry is an integer that defaults to 42 and has a tooltip "Age of the person".
     Here, the minimum and maximum values are set,
     which will limit the values that can be set in the SpinBox widget.
 4. The some_value entry is a float that defaults to 3.14 and has a tooltip "The value of pi".
@@ -93,7 +93,7 @@ sys.exit(exit_code)
     No limits are given, so the default limits of any DoubleSpinBox [0.00, 99.99] are used.
 5. A boolean value is used for the true_false entry. Label text and tooltip are set as for other fields.
     A boolean will be rendered as a CheckBox widget.
-    This field does not have a default value, so it will not be changed when the "Restore Defaults" button is clicked. 
+    This field does not have a default value, so it will not be changed when the "Restore Defaults" button is clicked.
 6. The combo_box entry is a Literal type that can only be one of the given values.
     The default value here is set to "B", which must be part of the options.
     `Literal` types are renderd as ComboBox widgets.
@@ -101,7 +101,7 @@ sys.exit(exit_code)
     and entries, which are described above in the `MyFields` pydantic class.
 8. We can create the dialog simply by using the provided `simple_dialog` method that we imported above.
 9. Here we execute the dialog first, and if the `Ok` button is clicked,
-    the dialog is accepted and the `if` statement is entered. 
+    the dialog is accepted and the `if` statement is entered.
     In this case, we update the model entries with the new values that the user set.
 10. Finally, we print the new values to the console. This is useful for test purposes.
 
@@ -133,12 +133,11 @@ The `SimpleDialogModel` however has some additional arguments that you can use t
 ::: qtantic.SimpleDialogModel
     options:
       show_root_heading: true
-      heading_level: 3 
+      heading_level: 3
       show_source: true
 
 ::: qtantic.simple_dialog
     options:
       show_root_heading: true
-      heading_level: 3 
+      heading_level: 3
       show_source: true
-

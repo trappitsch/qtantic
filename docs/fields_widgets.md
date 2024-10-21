@@ -10,7 +10,7 @@ all fields support these.
 ## Overall options
 
 The following options are available for all fields:
- 
+
 - `title`: The label that will be associated with a given field. If not set, the field name will be used.
 - `description`: The description of a filed that will be shown as a tooltip when hovered over the widget or over the label. If not set, no tooltip will be available.
 
@@ -40,7 +40,7 @@ from pydantic import BaseModel
 
 class MyModel(BaseModel):
     name: Field("John"),
-    address: str = Field("", json_scheme_extra={"widget": "QTextEdit"}) 
+    address: str = Field("", json_scheme_extra={"widget": "QTextEdit"})
 ```
 
 This create two fields, a `name` field with a default value of "John" and an `address` field with a default value of "".
@@ -71,7 +71,7 @@ class MyModel(BaseModel):
     my_integer: int = Field(0, minimum=-10, maximum=10, multipleOf=5)
 ```
 
-This will create two fields. 
+This will create two fields.
 The first one has a default value of 42 and can go from 0 to 120 (inclusive).
 The second one defaults to 0, goes from -10 to 10 (inclusive) and has a step size of 5.
 
@@ -158,7 +158,7 @@ The following options are available:
 
 Extra option to select the format:
 
-You can select the format by setting the `json_scheme_extra={"display": "format_string"}`, 
+You can select the format by setting the `json_scheme_extra={"display": "format_string"}`,
 where `format_string` is a string that is supported by the selected widget.
 
 **Example:**
@@ -173,4 +173,3 @@ class MyModel(BaseModel):
 ```
 
 In this example, the user gets a `datetime` widget that does not display the seconds.
-
