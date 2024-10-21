@@ -1,12 +1,9 @@
 """Parser functions to process models and their components."""
 
-# TODO: Implement additional properties for the fields, e.g., widget selector, using `json_scheme_extra` in `Field`.
-# see https://github.com/pydantic/pydantic/discussions/2419#discussioncomment-8632072
-# This would allow, e.g., to set a QTextEdit for a string field with a large description instead of the default QLineEdit.
-# Or the user can set their own widgets, as long as they have the same interface as the default ones.
-# I'll need to provide a compatibility list.
-# - QTextEdit for string fields
-# - QSlider for integer (and float???) fields
+# TODO: 
+# - Time field with QTimeEdit
+# - Date field with QDateEdit
+# - DateTime field with QDateTimeEdit
 
 from typing import Any, Tuple, Union
 
@@ -30,6 +27,8 @@ def get_value_from_widget(widget: QtWidgets.QWidget) -> Any:
         return widget.value()
     elif isinstance(widget, QtWidgets.QLineEdit):
         return widget.text()
+    elif isinstance(widget, QtWidgets.QTextEdit):
+        return widget.toPlainText()
     elif isinstance(widget, QtWidgets.QCheckBox):
         return widget.isChecked()
     elif isinstance(widget, QtWidgets.QComboBox):
@@ -67,13 +66,17 @@ def field_parser(
     if "description" in field:
         lbl.setToolTip(field["description"])
 
+    user_widget = field.get("json_scheme_extra", {}).get("widget", None)
+
     if (ftp := field["type"]) in ["integer", "number"]:
         widget = _create_number_widget(value, field)
     elif ftp == "string":
         if "enum" in field.keys():  # Literal
             widget = _create_combobox_widget(value, field)
+        elif user_widget == "QTextEdit":
+            widget = _create_text_multiline_widget(value, field)
         else:
-            widget = _create_text_entry_widget(value, field)
+            widget = _create_text_line_widget(value, field)
     elif ftp == "boolean":
         widget = _create_bool_widget(value, field)
     else:
@@ -101,7 +104,7 @@ def set_widget_value(widget: QtWidgets.QWidget, value: Any) -> None:
         widget, QtWidgets.QDoubleSpinBox
     ):
         widget.setValue(value)
-    elif isinstance(widget, QtWidgets.QLineEdit):
+    elif isinstance(widget, QtWidgets.QLineEdit) or isinstance(widget, QtWidgets.QTextEdit):
         widget.setText(value)
     elif isinstance(widget, QtWidgets.QCheckBox):
         widget.setChecked(value)
@@ -182,7 +185,25 @@ def _create_number_widget(value: Union[int, float], field: dict) -> QtWidgets.QW
     return widget
 
 
-def _create_text_entry_widget(value: str, field: dict) -> QtWidgets.QWidget:
+def _create_text_multiline_widget(value: str, field: dict) -> QtWidgets.QWidget:
+    """Create a widget for a multi line text entry field.
+
+    Args:
+        field: Field definition.
+
+    Returns:
+        Widget for the multiline text entry field.
+
+    """
+    widget = QtWidgets.QTextEdit()
+
+    widget.setText(value)
+
+    if "description" in field:
+        widget.setToolTip(field["description"])
+
+    return widget
+def _create_text_line_widget(value: str, field: dict) -> QtWidgets.QWidget:
     """Create a widget for a text entry field.
 
     Args:
