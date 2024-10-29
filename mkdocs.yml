@@ -53,4 +53,5 @@ nav:
   - Home: index.md
   - Field & Widgets: fields_widgets.md
   - Simple Dialog: simple_dialog.md
+  - Tabbed Dialog: tabbed_dialog.md
   - Changelog: changelog.md

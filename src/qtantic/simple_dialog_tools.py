@@ -180,4 +180,4 @@ def simple_dialog(
         >>> simple_dialog_model = SimpleDialogModel(entries=MyFields)
         >>> dialog = simple_dialog(simple_dialog_model)
     """
-    return SimpleDialog(model, parent=parent)
+    return SimpleDialog(model, *args, parent=parent)
